@@ -12,23 +12,29 @@ class Estado:
     def esFinal(self): #Para finalizar el juego
         return True if (self.numero_cartas_jugador == 0 or self.numero_cartas_ia == 0) else False #Algun jugador queda sin cartas
 
+    def posibles_jugadas(self):
+        return list()
 
-
-    def seleccionar_jugada(self , posibles_jugadas):
+    def seleccionar_jugada(self):
         jugadas_candidatas = []
-
         for carta in self.cartas_mazo_ia: #idea: crear metodo que retorne las posibles jugadas
-            if carta in posibles_jugadas:
+            if carta in self.posibles_jugadas():
                 jugadas_candidatas.append(carta)
 
         return jugadas_candidatas
+
+    
+
+
+
+
         
 
     def generarHijos(self):
         pass
 
 
-        
+   
 
     
 
