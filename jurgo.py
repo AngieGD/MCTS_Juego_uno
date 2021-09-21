@@ -25,6 +25,7 @@ class Estado:
         
 
     def generarHijos(self):
+        pass
 
 
         
