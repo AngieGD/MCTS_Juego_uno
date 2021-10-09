@@ -40,7 +40,8 @@ class MonteCarloTreeSearchNode:
     # actual se generan y se devuelve el child_node correspondiente a este estado generado.
     def expand(self):
         action = self._untried_actions.pop()
-        next_state = self.state.move(action, self.isMax)#Generar un nuevo estado - Arreglar luego
+        nextS = copy.deepcopy(self.state)
+        next_state = nextS.move(action, self.isMax)#Generar un nuevo estado - Arreglar luego
         #print('bandera', next_state.get_legal_actions())
         child_node = MonteCarloTreeSearchNode(
             next_state, not self.isMax, parent=self, parent_action=action)
@@ -58,7 +59,7 @@ class MonteCarloTreeSearchNode:
     #en cada turno el movimiento se selecciona aleatoriamente de un conjunto de movimientos posibles, se llama 
     #playout ligero.
     def rollout(self):
-        current_rollout_state = self.state
+        current_rollout_state = copy.deepcopy(self.state)
         #print('Prueba rollout')
         turn = self.isMax
         while not current_rollout_state.is_game_over():

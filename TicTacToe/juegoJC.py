@@ -219,5 +219,5 @@ def juegoPlayerVsMaquina():
             posicion = pos
             # el tablero obligatorio para el siguiente turno
             subtablero = tablero[(posicion)]
-
+    imprimirTablero(tablero)
 juegoPlayerVsMaquina()
