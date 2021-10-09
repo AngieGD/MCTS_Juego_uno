@@ -1,5 +1,8 @@
 import numpy as np
-import pandas as pd
+import copy
+from mcts import MonteCarloTreeSearchNode
+from state import State
+#from TicTacToe.mcts import MonteCarloTreeSearchNode
 
 # Se definen las marcas de cada jugador
 # Tomaremos al jugador1 con minmax y al jugador2 con MCTS
@@ -161,71 +164,73 @@ def minMaxMejorJugada(tablero, moves):
     return bestMove
 
 
-primerTurno = True
-# vamos a hacer el mejor videoJuego de la pinche historia
-gano = False
+def juegoPlayerVsMaquina():
+    primerTurno = True
+    # vamos a hacer el mejor videoJuego de la pinche historia
+    gano = False
 
-jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
-    'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
+    jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
+        'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
 
-while not gano:
-    # primero mostramos el tablero
+    while not gano:
+        # primero mostramos el tablero
 
-    # el turno de cada jugador
-    for jugador in jugadores:
+        # el turno de cada jugador
+        for jugador in jugadores:
 
-        imprimirTablero(tablero)
+            imprimirTablero(tablero)
+            #MonteCarloTreeSearchNode
+            if primerTurno:
+                opcion = int(input('Seleccione el tablero: (1:9): '))
 
-        if primerTurno:
-            opcion = int(input('Seleccione el tablero: (1:9): '))
+                while ((opcion-1 < 0) or (opcion-1 > 9)):
+                    print('\nPor favor, digite una opción entre (1:9)')
+                    opcion = int(input('Seleccione el tablero: (1:9)'))
+                subtablero, posicion = obtenerTablero(opcion, tablero)
+                primerTurno = False
 
-            while ((opcion-1 < 0) or (opcion-1 > 9)):
-                print('\nPor favor, digite una opción entre (1:9)')
-                opcion = int(input('Seleccione el tablero: (1:9)'))
-            subtablero, posicion = obtenerTablero(opcion, tablero)
-            primerTurno = False
+            print('\n')
+            print('Turno del jugador: ', jugador['nombre'])
+            print('Tablero: ', posicion)
+            mostrarSubtablero(subtablero)
+            sub = copy.copy(subtablero)
+            if jugador['marca'] == jugador1:
+                #TODO Traer la jugada usando MCTS
+                print('\nSeleccione el movimiento que desea realizar: ')
+                print(subtablero.getMoves())
 
-        print('\n')
-        print('Turno del jugador: ', jugador['nombre'])
-        print('Tablero: ', posicion)
-        mostrarSubtablero(subtablero)
-
-        if jugador['marca'] == jugador1:
-            print('\nSeleccione el movimiento que desea realizar: ')
-            print(subtablero.getMoves())
-
-            coordenada = input('\nDigite la coordenada (x,y): ')
-            pos = coordenada.split(' ')
-            pos = (int(pos[0]), int(pos[1]))
-
-            while not validarMovimiento(pos, subtablero):
-                print('\nError, por favor digite un movimiento disponible')
                 coordenada = input('\nDigite la coordenada (x,y): ')
                 pos = coordenada.split(' ')
                 pos = (int(pos[0]), int(pos[1]))
 
-        else:
-            pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
+                while not validarMovimiento(pos, subtablero):
+                    print('\nError, por favor digite un movimiento disponible')
+                    coordenada = input('\nDigite la coordenada (x,y): ')
+                    pos = coordenada.split(' ')
+                    pos = (int(pos[0]), int(pos[1]))
+            else:
+                pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
 
+            # inserta los movimientos del jugador
+            jugador['movimientos'].append(pos)
 
-        # inserta los movimientos del jugador
-        jugador['movimientos'].append(pos)
+            subtablero.insertarMarca(pos, jugador['marca'])
 
-        subtablero.insertarMarca(pos, jugador['marca'])
+            mostrarSubtablero(subtablero)
 
-        mostrarSubtablero(subtablero)
+            if subtablero.victoriaJugador(jugador['marca']):
 
-        if subtablero.victoriaJugador(jugador['marca']):
+                ganador = jugador['nombre']
+                movimientos = jugador['movimientos']
+                tablero_ganador = subtablero.table
 
-            ganador = jugador['nombre']
-            movimientos = jugador['movimientos']
-            tablero_ganador = subtablero.table
+                gano = True
+                break
 
-            gano = True
-            break
+            tablero[posicion] = subtablero
 
-        tablero[posicion] = subtablero
+            posicion = pos
+            # el tablero obligatorio para el siguiente turno
+            subtablero = tablero[(posicion)]
 
-        posicion = pos
-        # el tablero obligatorio para el siguiente turno
-        subtablero = tablero[(posicion)]
+juegoPlayerVsMaquina()
