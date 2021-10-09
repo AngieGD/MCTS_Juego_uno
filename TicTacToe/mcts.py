@@ -40,7 +40,6 @@ class MonteCarloTreeSearchNode:
     # actual se generan y se devuelve el child_node correspondiente a este estado generado.
     def expand(self):
         action = self._untried_actions.pop()
-        
         next_state = self.state.move(action, self.isMax)#Generar un nuevo estado - Arreglar luego
         #print('bandera', next_state.get_legal_actions())
         child_node = MonteCarloTreeSearchNode(

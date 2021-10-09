@@ -6,7 +6,7 @@ from state import State
 
 # Se definen las marcas de cada jugador
 # Tomaremos al jugador1 con minmax y al jugador2 con MCTS
-jugador1, jugador2 = 'X', 'O'
+jugador1, jugador2 = 'O', 'X'
 
 
 class Table:
@@ -193,21 +193,12 @@ def juegoPlayerVsMaquina():
             print('Turno del jugador: ', jugador['nombre'])
             print('Tablero: ', posicion)
             mostrarSubtablero(subtablero)
-            sub = copy.copy(subtablero)
+            sub = copy.deepcopy(subtablero)
             if jugador['marca'] == jugador1:
                 #TODO Traer la jugada usando MCTS
-                print('\nSeleccione el movimiento que desea realizar: ')
-                print(subtablero.getMoves())
-
-                coordenada = input('\nDigite la coordenada (x,y): ')
-                pos = coordenada.split(' ')
-                pos = (int(pos[0]), int(pos[1]))
-
-                while not validarMovimiento(pos, subtablero):
-                    print('\nError, por favor digite un movimiento disponible')
-                    coordenada = input('\nDigite la coordenada (x,y): ')
-                    pos = coordenada.split(' ')
-                    pos = (int(pos[0]), int(pos[1]))
+                estado1 = State(sub)
+                root = MonteCarloTreeSearchNode(state=estado1, isMax=True)
+                pos = root.best_action().parent_action
             else:
                 pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
 
