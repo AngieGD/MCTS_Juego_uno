@@ -196,7 +196,10 @@ def juegoPlayerVsMaquina():
                 root = MonteCarloTreeSearchNode(state=estado1, isMax=True)
                 pos = root.best_action().parent_action
             else:
-                pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
+                if len(subtablero.getMoves()) == 9:
+                    pos = subtablero.getMoves()[np.random.randint(1,9)]
+                else:
+                    pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
 
             # inserta los movimientos del jugador
             jugador['movimientos'].append(pos)
@@ -220,4 +223,5 @@ def juegoPlayerVsMaquina():
             # el tablero obligatorio para el siguiente turno
             subtablero = tablero[(posicion)]
     imprimirTablero(tablero)
+    print('El ganador es!!!: ', ganador)
 juegoPlayerVsMaquina()
