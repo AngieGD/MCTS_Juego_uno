@@ -181,11 +181,7 @@ def juegoPlayerVsMaquina():
             imprimirTablero(tablero)
             #MonteCarloTreeSearchNode
             if primerTurno:
-                opcion = int(input('Seleccione el tablero: (1:9): '))
-
-                while ((opcion-1 < 0) or (opcion-1 > 9)):
-                    print('\nPor favor, digite una opción entre (1:9)')
-                    opcion = int(input('Seleccione el tablero: (1:9)'))
+                opcion = np.random.randint(1,10)
                 subtablero, posicion = obtenerTablero(opcion, tablero)
                 primerTurno = False
 
