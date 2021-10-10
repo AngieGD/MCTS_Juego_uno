@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from minmax import minMaxMejorJugada
 from mcts import MonteCarloTreeSearchNode
 from state import State
 #from TicTacToe.mcts import MonteCarloTreeSearchNode
@@ -62,8 +63,6 @@ def crearTablero():
     return tablero_grande
 
 
-tablero = crearTablero()
-
 
 def imprimirTablero(tablero):
     salida = ""
@@ -113,58 +112,310 @@ def validarMovimiento(move, subtablero):
         return True
     return False
 
-# Implementacuón del MinMax
 
-# Esta función evalua un arbol generado apartir de un estado de tablero
+def juegoMinMaxVSminMax():
+    tablero = crearTablero()
+    primerTurno = True
+    # vamos a hacer el mejor videoJuego de la pinche historia
+    gano = False
 
+    jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
+        'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
 
-def minmax(tablero, profundidad, isMax):
-    score = 10 if tablero.victoriaJugador(jugador1) else -10
+    while not gano:
+        # primero mostramos el tablero
 
-    # Si gano el jugador
-    if score == 10:
-        return score
-    # Si gano el contrincante
-    if score == -10:
-        return score
-    # Averiguar si aun quedan movimientos
-    moves = tablero.getMoves()
-    if len(moves) == 0:
-        return 0
+        # el turno de cada jugador
+        for jugador in jugadores:
 
-    if isMax:
-        best = -1000
-        for i in moves:
-            tablero.table[i[0]][i[1]] = jugador1
-            # Se elije el valor maximo del arbol generado
-            best = max(best, minmax(tablero, profundidad + 1, not isMax))
-            tablero.table[i[0]][i[1]] = ' '
-        return best
-    else:
-        best = 1000
-        for i in moves:
-            tablero.table[i[0]][i[1]] = jugador2
-            # Se elije el valor minimo del arbol generado
-            best = min(best, minmax(tablero, profundidad + 1, not isMax))
-            tablero.table[i[0]][i[1]] = ' '
+            imprimirTablero(tablero)
+            #MonteCarloTreeSearchNode
+            if primerTurno:
+                opcion = np.random.randint(1,10)
+                subtablero, posicion = obtenerTablero(opcion, tablero)
+                primerTurno = False
 
-        return best
+            print('\n')
+            print('Turno del jugador: ', jugador['nombre'])
+            print('Tablero: ', posicion)
+            mostrarSubtablero(subtablero)
+            sub = copy.deepcopy(subtablero)
+            if jugador['marca'] == jugador1:
+                if len(subtablero.getMoves()) == 9:
+                    pos = subtablero.getMoves()[np.random.randint(1,9)]
+                else:
+                    pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
+            else:
+                if len(subtablero.getMoves()) == 9:
+                    pos = subtablero.getMoves()[np.random.randint(1,9)]
+                else:
+                    pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
 
+            # inserta los movimientos del jugador
+            jugador['movimientos'].append(pos)
 
-def minMaxMejorJugada(tablero, moves):
-    bestVal = -1000
-    bestMove = (-1, -1)
-    for i in moves:
-        tablero.table[i[0]][i[1]] = jugador1
-        moveVal = minmax(tablero, 0, False)
-        tablero.table[i[0]][i[1]] = ' '
-        if (moveVal > bestVal):
-            bestMove = (i[0], i[1])
-            bestVal = moveVal
-    return bestMove
+            subtablero.insertarMarca(pos, jugador['marca'])
 
+            mostrarSubtablero(subtablero)
 
-def juegoPlayerVsMaquina():
+            if subtablero.victoriaJugador(jugador['marca']):
+
+                ganador = jugador['nombre']
+                movimientos = jugador['movimientos']
+                tablero_ganador = subtablero.table
+
+                gano = True
+                break
+
+            tablero[posicion] = subtablero
+
+            posicion = pos
+            # el tablero obligatorio para el siguiente turno
+            subtablero = tablero[(posicion)]
+    imprimirTablero(tablero)
+    print('El ganador es!!!: ', ganador)
+    return ganador
+
+def juegoMCTSvsMCTS():
+    tablero = crearTablero()
+    primerTurno = True
+    # vamos a hacer el mejor videoJuego de la pinche historia
+    gano = False
+
+    jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
+        'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
+
+    while not gano:
+        # primero mostramos el tablero
+
+        # el turno de cada jugador
+        for jugador in jugadores:
+
+            imprimirTablero(tablero)
+            #MonteCarloTreeSearchNode
+            if primerTurno:
+                opcion = np.random.randint(1,10)
+                subtablero, posicion = obtenerTablero(opcion, tablero)
+                primerTurno = False
+
+            print('\n')
+            print('Turno del jugador: ', jugador['nombre'])
+            print('Tablero: ', posicion)
+            mostrarSubtablero(subtablero)
+            sub = copy.deepcopy(subtablero)
+            if jugador['marca'] == jugador1:
+                estado1 = State(sub)
+                root = MonteCarloTreeSearchNode(state=estado1, isMax=True)
+                pos = root.best_action().parent_action
+            else:
+                estado1 = State(sub)
+                root = MonteCarloTreeSearchNode(state=estado1, isMax=True)
+                pos = root.best_action().parent_action
+
+            # inserta los movimientos del jugador
+            jugador['movimientos'].append(pos)
+
+            subtablero.insertarMarca(pos, jugador['marca'])
+
+            mostrarSubtablero(subtablero)
+
+            if subtablero.victoriaJugador(jugador['marca']):
+
+                ganador = jugador['nombre']
+                movimientos = jugador['movimientos']
+                tablero_ganador = subtablero.table
+
+                gano = True
+                break
+
+            tablero[posicion] = subtablero
+
+            posicion = pos
+            # el tablero obligatorio para el siguiente turno
+            subtablero = tablero[(posicion)]
+    imprimirTablero(tablero)
+    print('El ganador es!!!: ', ganador)
+    return ganador
+
+def juegoMinMaxVSRandom():
+    tablero = crearTablero()
+    primerTurno = True
+    # vamos a hacer el mejor videoJuego de la pinche historia
+    gano = False
+
+    jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
+        'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
+
+    while not gano:
+        # primero mostramos el tablero
+
+        # el turno de cada jugador
+        for jugador in jugadores:
+
+            imprimirTablero(tablero)
+            #MonteCarloTreeSearchNode
+            if primerTurno:
+                opcion = np.random.randint(1,10)
+                subtablero, posicion = obtenerTablero(opcion, tablero)
+                primerTurno = False
+
+            print('\n')
+            print('Turno del jugador: ', jugador['nombre'])
+            print('Tablero: ', posicion)
+            mostrarSubtablero(subtablero)
+            sub = copy.deepcopy(subtablero)
+            if jugador['marca'] == jugador1:
+                if len(subtablero.getMoves()) == 9:
+                    pos = subtablero.getMoves()[np.random.randint(1,9)]
+                else:
+                    pos = minMaxMejorJugada(subtablero, subtablero.getMoves())
+            else:
+                pos = subtablero.getMoves()[np.random.randint(1,len(subtablero.getMoves()))]
+
+            # inserta los movimientos del jugador
+            jugador['movimientos'].append(pos)
+
+            subtablero.insertarMarca(pos, jugador['marca'])
+
+            mostrarSubtablero(subtablero)
+
+            if subtablero.victoriaJugador(jugador['marca']):
+
+                ganador = jugador['nombre']
+                movimientos = jugador['movimientos']
+                tablero_ganador = subtablero.table
+
+                gano = True
+                break
+
+            tablero[posicion] = subtablero
+
+            posicion = pos
+            # el tablero obligatorio para el siguiente turno
+            subtablero = tablero[(posicion)]
+    imprimirTablero(tablero)
+    print('El ganador es!!!: ', ganador)
+    return ganador
+
+def juegoMCTSvsRandom():
+    tablero = crearTablero()
+    primerTurno = True
+    # vamos a hacer el mejor videoJuego de la pinche historia
+    gano = False
+
+    jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
+        'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
+
+    while not gano:
+        # primero mostramos el tablero
+
+        # el turno de cada jugador
+        for jugador in jugadores:
+
+            imprimirTablero(tablero)
+            #MonteCarloTreeSearchNode
+            if primerTurno:
+                opcion = np.random.randint(1,10)
+                subtablero, posicion = obtenerTablero(opcion, tablero)
+                primerTurno = False
+
+            print('\n')
+            print('Turno del jugador: ', jugador['nombre'])
+            print('Tablero: ', posicion)
+            mostrarSubtablero(subtablero)
+            sub = copy.deepcopy(subtablero)
+            if jugador['marca'] == jugador1:
+                #TODO Traer la jugada usando MCTS
+                estado1 = State(sub)
+                root = MonteCarloTreeSearchNode(state=estado1, isMax=True)
+                pos = root.best_action().parent_action
+            else:
+                pos = subtablero.getMoves()[np.random.randint(1,len(subtablero.getMoves()))]
+
+            # inserta los movimientos del jugador
+            jugador['movimientos'].append(pos)
+
+            subtablero.insertarMarca(pos, jugador['marca'])
+
+            mostrarSubtablero(subtablero)
+
+            if subtablero.victoriaJugador(jugador['marca']):
+
+                ganador = jugador['nombre']
+                movimientos = jugador['movimientos']
+                tablero_ganador = subtablero.table
+
+                gano = True
+                break
+
+            tablero[posicion] = subtablero
+
+            posicion = pos
+            # el tablero obligatorio para el siguiente turno
+            subtablero = tablero[(posicion)]
+    imprimirTablero(tablero)
+    print('El ganador es!!!: ', ganador)
+    return ganador
+
+def juegoRandomVSRandom():
+    tablero = crearTablero()
+    primerTurno = True
+    # vamos a hacer el mejor videoJuego de la pinche historia
+    gano = False
+
+    jugadores = [{'nombre': 'Jugador1', 'movimientos': [], 'marca':jugador1}, {
+        'nombre': 'Jugador2', 'movimientos': [], 'marca':jugador2}]
+
+    while not gano:
+        # primero mostramos el tablero
+
+        # el turno de cada jugador
+        for jugador in jugadores:
+
+            imprimirTablero(tablero)
+            #MonteCarloTreeSearchNode
+            if primerTurno:
+                opcion = np.random.randint(1,10)
+                subtablero, posicion = obtenerTablero(opcion, tablero)
+                primerTurno = False
+
+            print('\n')
+            print('Turno del jugador: ', jugador['nombre'])
+            print('Tablero: ', posicion)
+            mostrarSubtablero(subtablero)
+            sub = copy.deepcopy(subtablero)
+            if jugador['marca'] == jugador1:
+                pos = subtablero.getMoves()[np.random.randint(1,len(subtablero.getMoves()))]
+            else:
+                pos = subtablero.getMoves()[np.random.randint(1,len(subtablero.getMoves()))]
+
+            # inserta los movimientos del jugador
+            jugador['movimientos'].append(pos)
+
+            subtablero.insertarMarca(pos, jugador['marca'])
+
+            mostrarSubtablero(subtablero)
+
+            if subtablero.victoriaJugador(jugador['marca']):
+
+                ganador = jugador['nombre']
+                movimientos = jugador['movimientos']
+                tablero_ganador = subtablero.table
+
+                gano = True
+                break
+
+            tablero[posicion] = subtablero
+
+            posicion = pos
+            # el tablero obligatorio para el siguiente turno
+            subtablero = tablero[(posicion)]
+    imprimirTablero(tablero)
+    print('El ganador es!!!: ', ganador)
+    return ganador
+
+def juegoMCTSvsMinMax():
+    tablero = crearTablero()
     primerTurno = True
     # vamos a hacer el mejor videoJuego de la pinche historia
     gano = False
@@ -224,4 +475,55 @@ def juegoPlayerVsMaquina():
             subtablero = tablero[(posicion)]
     imprimirTablero(tablero)
     print('El ganador es!!!: ', ganador)
-juegoPlayerVsMaquina()
+    return ganador
+
+def torneo():
+
+
+    r1Partida1 = 'Montecarlo' if juegoMCTSvsMinMax() == 'Jugador1' else 'MinMax'
+    r1Partida2 = 'Montecarlo' if juegoMCTSvsRandom() == 'Jugador1' else 'Random'
+    r1Partida3 = 'MinMax' if juegoMinMaxVSRandom() == 'Jugador1' else 'Random' 
+    #__________________________________________________________
+    if r1Partida1 == 'Montecarlo' and r1Partida2 == 'Montecarlo':
+        r2Partida1 = 'Montecarlo'
+    elif r1Partida1 == 'Montecarlo' and r1Partida2 == 'Random':
+        r2Partida1 = 'Montecarlo' if juegoMCTSvsRandom() == 'Jugador1' else 'Random'
+    elif r1Partida1 == 'MinMax' and r1Partida2 == 'Montecarlo':
+        r2Partida1 = 'Montecarlo' if juegoMCTSvsMinMax() == 'Jugador1' else 'MinMax'
+    elif r1Partida1 == 'MinMax' and r1Partida2 == 'Random':
+        r2Partida1 = 'MinMax' if juegoMinMaxVSRandom() == 'Jugador1' else 'Random'   
+    #__________________________________________________________  
+    if r1Partida3 == 'MinMax':
+        r2Partida2 = 'MinMax'
+    else:
+        r2Partida2 = 'Random'
+    #__________________________________________________________    
+    if r2Partida1 == 'Montecarlo' and r2Partida2 == 'MinMax':
+        r3Partida1 = 'Montecarlo' if juegoMCTSvsMinMax() == 'Jugador1' else 'MinMax'
+    elif r2Partida1 == 'MinMax' and r2Partida2 == 'MinMax':
+        r3Partida1 = 'MinMax'
+    elif r2Partida1 == 'Montecarlo' and r2Partida2 == 'Random':
+        r3Partida1 = 'Montecarlo' if juegoMCTSvsRandom() == 'Jugador1' else 'Random'
+    elif r2Partida1 == 'Random' and r2Partida2 == 'MinMax':
+        r3Partida1 = 'MinMax' if juegoMinMaxVSRandom() == 'Jugador1' else 'Random'
+    elif r2Partida1 == 'Random' and r2Partida2 == 'Random':
+        r3Partida1 = 'Random'
+
+    print('Ganadores primera Ronda!')
+    print('Partida 1:', r1Partida1)
+    print('Partida 2:', r1Partida2)
+    print('Partida 3:', r1Partida3)
+    print('Ganadores Segunda Ronda!')
+    print('Partida 5:', r2Partida1)
+    print('Ganador Ronda Final!')
+    print('Partida 6:', r3Partida1)
+
+
+#juegoMCTSvsMinMax()
+#juegoMinMaxVSminMax()
+#juegoMCTSvsMCTS()
+#juegoMCTSvsRandom()
+#juegoMinMaxVSRandom()
+#juegoRandomVSRandom()
+
+torneo()
