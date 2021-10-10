@@ -508,6 +508,8 @@ def torneo():
         r3Partida1 = 'MinMax' if juegoMinMaxVSRandom() == 'Jugador1' else 'Random'
     elif r2Partida1 == 'Random' and r2Partida2 == 'Random':
         r3Partida1 = 'Random'
+    elif r2Partida1 == 'MinMax' and r2Partida2 == 'Random':
+        r3Partida1 = 'MinMax' if juegoMinMaxVSRandom() == 'Jugador1' else 'Random'
 
     print('Ganadores primera Ronda!')
     print('Partida 1:', r1Partida1)
