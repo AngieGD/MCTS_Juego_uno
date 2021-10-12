@@ -474,7 +474,7 @@ def juegoMCTSvsMinMax():
             # el tablero obligatorio para el siguiente turno
             subtablero = tablero[(posicion)]
     imprimirTablero(tablero)
-    print('El ganador es!!!: ', ganador)
+    #print('El ganador es!!!: ', ganador)
     return ganador
 
 def torneo():
@@ -519,13 +519,27 @@ def torneo():
     print('Partida 5:', r2Partida1)
     print('Ganador Ronda Final!')
     print('Partida 6:', r3Partida1)
+    #return r3Partida1
 
-
+torneo()
 #juegoMCTSvsMinMax()
 #juegoMinMaxVSminMax()
 #juegoMCTSvsMCTS()
 #juegoMCTSvsRandom()
 #juegoMinMaxVSRandom()
 #juegoRandomVSRandom()
+#mc = 0
+#mm = 0
+#r = 0 
+#for i in range(1001):
+#    v = torneo()
+#    if v == "Montecarlo":
+#        mc += 1
+#    elif v == "MinMax":
+#        mm += 1
+#    else:
+#        r += 1
 
-torneo()
+#print('Media Montecarlo: ', mc/1000)
+#print('Media MinMax', mm/1000)
+#print('Media Random', r/1000)
